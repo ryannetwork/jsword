@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Home{% endblock %}
+
+{% block content %}
+    <h2>Home</h2>
+    <p>Hello {{ user }} さん</p>
+    <p>{{ message }}</p>
+    <a href="{% url 'accounts:password_change' %}">パスワード変更</a>
+{% endblock %}

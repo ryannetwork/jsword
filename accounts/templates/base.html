@@ -1,0 +1,27 @@
+<!doctype html>
+{% load static %}
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block page_title %}{% endblock %}</title>
+
+    {# --- css --- #}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="ui container">
+    {# --- content --- #}
+    {% block content %}{% endblock %}
+</div>
+
+{% if user.is_authenticated %}
+    {{ request.user }} ({{ request.user.email }})<br>
+    <a href="{% url 'accounts:logout' %}">ログアウト</a>
+{% endif %}
+
+{# --- js --- #}
+{% block extra_js %}{% endblock %}
+</body>
+</html>
