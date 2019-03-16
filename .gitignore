@@ -10,3 +10,4 @@ media
 # If your build process includes running collectstatic, then ...
 .idea/
 frontend/node_modules/
+frontend/build/
