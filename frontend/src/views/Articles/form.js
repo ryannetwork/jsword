@@ -10,9 +10,9 @@ class ArticleForm extends Component {
     super(props);
     this.state = {
       modal: false,
-      error: '',
       title: '',
-      content: ''
+      content: '',
+      errors: {}
     };
     this.toggle = this.toggle.bind(this);
     this.save = this.save.bind(this);
@@ -58,8 +58,7 @@ class ArticleForm extends Component {
       this.props.callback();
     })
     .catch((data) =>{
-      let message = JSON.stringify(data['response']['data']);
-      this.setState({error: message});
+      this.setState({errors: data['response']['data']});
     });
   }
 
@@ -73,24 +72,38 @@ class ArticleForm extends Component {
     });
   }
 
+  class_name(column, errors) {
+    if(errors[column]) {
+      return 'form-control is-invalid';
+    } else {
+      return 'form-control';
+    }
+  }
+
+  error_message(column, errors) {
+    if(errors[column]) {
+      return (
+        <div className="invalid-feedback">
+          {this.state.errors[column] .join(', ')}
+        </div>
+      );
+    }
+  }
+
   render() {
      return (
         <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
           <ModalHeader toggle={this.toggle}>{this.props.modal_title}</ModalHeader>
           <ModalBody>
-            {(() => {
-                if(this.state.error) {
-                  return (<div className="alert alert-danger fade show">{this.state.error}</div>);
-                }
-              })()
-            }
             <div className="form-group">
               <input name="title" type="text" placeholder="タイトル" value={this.state.title}
-                     onChange={this.handleChange} className="form-control" />
+                     onChange={this.handleChange} className={this.class_name('title', this.state.errors)} />
+              {this.error_message('title', this.state.errors)}
             </div>
             <div className="form-group">
               <textarea name="content" id="" cols="30" rows="20" placeholder="本文..." value={this.state.content}
-                        onChange={this.handleChange} className="form-control"></textarea>
+                        onChange={this.handleChange} className={this.class_name('content', this.state.errors)}></textarea>
+              {this.error_message('content', this.state.errors)}
             </div>
           </ModalBody>
           <ModalFooter>
