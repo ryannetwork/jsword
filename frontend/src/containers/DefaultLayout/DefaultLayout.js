@@ -4,7 +4,6 @@ import { Container } from 'reactstrap';
 
 import {
   AppAside,
-  AppBreadcrumb,
   AppFooter,
   AppHeader,
   AppSidebar,
@@ -18,6 +17,7 @@ import {
 import navigation from '../../_nav';
 // routes config
 import routes from '../../routes';
+import JBreadcrumb from './JBreadcrumb';
 
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
@@ -25,6 +25,21 @@ const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 
 class DefaultLayout extends Component {
   loading = () => <div className="animated fadeIn pt-1 text-center"><div className="sk-spinner sk-spinner-pulse"></div></div>;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      breadcrumb: ['ホーム'],
+      submenu: []
+    };
+    this.setBreadcrumb = this.setBreadcrumb.bind(this)
+  }
+
+  setBreadcrumb(breadcrumb, submenu) {
+    breadcrumb = breadcrumb || [];
+    submenu = submenu || [];
+    this.setState({breadcrumb: breadcrumb, submenu: submenu} );
+  }
 
   render() {
     return (
@@ -45,7 +60,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            <AppBreadcrumb appRoutes={routes}/>
+            <JBreadcrumb breadcrumb={this.state.breadcrumb} submenu={this.state.submenu} />
             <Container fluid>
               <Suspense fallback={this.loading()}>
                 <Switch>
@@ -57,7 +72,7 @@ class DefaultLayout extends Component {
                         exact={route.exact}
                         name={route.name}
                         render={props => (
-                          <route.component {...props} />
+                          <route.component setBreadcrumb={this.setBreadcrumb} {...props} />
                         )} />
                     ) : (null);
                   })}

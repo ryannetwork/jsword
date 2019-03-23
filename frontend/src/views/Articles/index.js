@@ -1,66 +1,104 @@
 import './index.scss';
+import env from '../../environment/index';
 
 import React, { Component } from 'react';
-import { Badge, Card, CardBody, CardFooter, CardHeader, Col, Row, Collapse, Fade } from 'reactstrap';
-import { AppSwitch } from '@coreui/react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Card, CardBody, CardHeader, Col, Row } from 'reactstrap';
+import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types';
+import ArticleForm from './form'
 
 
-const Article = React.lazy(() => import('./show'));
+class AddArticle extends Component {
+  constructor(props) {
+    super(props);
+    this.toggle = this.toggle.bind(this);
+  }
 
-class Articles extends Component {
+  toggle() {
+    this.refs.form.toggle();
+  }
+
+  render() {
+    return (
+      <div className="animated fadeIn">
+        <div onClick={this.toggle} className="btn">新規作成</div>
+        <ArticleForm ref='form' callback={this.props.callback} modal_title="記事作成" className="modal-xl" />
+      </div>
+    );
+  }
+}
+
+class EditArticle extends Component {
+  constructor(props) {
+    super(props);
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.refs.form.toggle();
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <label className="float-right">
+          <div onClick={this.toggle}><small>編集</small></div>
+        </label>
+        <ArticleForm ref='form' article_id={this.props.article_id} callback={this.props.callback}
+                     modal_title="記事編集" className="modal-xl" />
+      </React.Fragment>
+    );
+  }
+}
+
+class ArticleList extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
-    this.toggleFade = this.toggleFade.bind(this);
+    this.update_list = this.update_list.bind(this);
     this.state = {
       articles: []
     };
   }
 
-  toggle() {
-    this.setState({ collapse: !this.state.collapse });
-  }
-
-  toggleFade() {
-    this.setState((prevState) => { return { fadeIn: !prevState }});
+  update_list() {
+    const axios = require('axios');
+    axios.get(env.API_ORIGIN + 'articles/api/')
+    .then((results) => {
+        this.setState({articles: results.data});
+    })
+    .catch((data) =>{
+      alert('記事一覧の取得の失敗しました。');
+    })
   }
 
   componentDidMount() {
-    const axios = require('axios');
-    axios.get('http://localhost:8000/articles/api/')
-    .then((results) => {
-        console.log(results);
-        this.setState({articles: results.data});
-        // this.props.setBreadcrumb(results.data.breadcrumb, results.data.submenu);
-    })
-    .catch((data) =>{
-        console.log(data);
-    })
+    let breadcrumb = [['ホーム', '']];
+    let submenu = [{type: 'component', component: AddArticle, props: {callback: this.update_list}}];
+    this.props.setBreadcrumb(breadcrumb, submenu);
+    this.update_list()
   }
 
   render() {
-    console.log(this.state.articles);
-     const list = this.state.articles.map((article, index) => {
-     return  (
-         <Col xs="12" sm="4" md="3">
-             <Link to={`/articles/${article.id}`} className="linked-card">
-                <Card>
-                    <CardHeader className="article-title">
-                       {article.title}
-                   </CardHeader>
-                   <CardBody className="article-headline">
-                       {article.headline}
-                   </CardBody>
-                </Card>
+    const list = this.state.articles.map((article, index) => {
+      return  (
+      <Col xs="12" sm="4" md="3">
+        <Card className="article">
+            <CardHeader className="header">
+              <div className="title">{article.title}</div>
+              <EditArticle article_id={article.id} callback={this.update_list} ></EditArticle>
+            </CardHeader>
+            <Link to={`/articles/${article.id}`} className="linked-card">
+              <CardBody className="content">
+               {article.content}
+              </CardBody>
             </Link>
-         </Col>
-         );
-     });
+        </Card>
+      </Col>
+      );
+    });
 
-     return (
+    return (
       <div className="animated fadeIn">
         <Row>
           {list}
@@ -70,8 +108,8 @@ class Articles extends Component {
   }
 }
 
-Articles.propTypes = {
+ArticleList.propTypes = {
     setSubmenu: PropTypes.func
 };
 
-export default Articles;
+export default ArticleList;

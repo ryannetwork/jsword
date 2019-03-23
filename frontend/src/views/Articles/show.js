@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import { Badge, Card, CardBody, CardFooter, CardHeader, Col, Row, Collapse, Fade } from 'reactstrap';
+import env from '../../environment/index';
 
-class Article extends Component {
+import React, { Component } from 'react';
+import { Card, CardBody, CardHeader } from 'reactstrap';
+
+class ArticleDetail extends Component {
     constructor(props) {
         super(props);
 
@@ -15,14 +17,15 @@ class Article extends Component {
     componentDidMount() {
         const id = this.props.match.params.id;
         const axios = require('axios');
-        axios.get(`http://localhost:8000/articles/api/${id}`)
+        axios.get(env.API_ORIGIN + `articles/api/${id}`)
             .then((results) => {
-                console.log(results);
                 this.setState(results.data);
-                // this.props.setBreadcrumb(results.data.breadcrumb, results.data.submenu);
+                let breadcrumb = [['ホーム', '']];
+                let submenu = [];
+                this.props.setBreadcrumb(breadcrumb, submenu);
             })
             .catch((data) =>{
-                console.log(data);
+              alert('記事の取得の失敗しました。');
             })
     }
 
@@ -42,4 +45,4 @@ class Article extends Component {
   }
 }
 
-export default Article;
+export default ArticleDetail;
